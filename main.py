@@ -8,15 +8,15 @@ import os
 
 def final_pred(ticker, change='absolute'):
     data = download_data(ticker, '2018-01-01', '2022-01-01', '1d')
-    data = all_indicators(data)
+    # data = all_indicators(data) # adds TIs
     data.dropna(inplace = True)
     data_tr = data_transform(data, change)
     X_train, y_train, X_test, y_test, scaler = data_split(data_tr.iloc[:, :-1], division='by date',
                                                           split_criteria='2021-01-01', scale='yes', step_size=30)
-    grid_model = build_model(X_train, loss='mse', optimizer='adam')
-    grid_model = KerasRegressor(build_fn=grid_model, verbose=1)
+    grid_model, grid_model_reg = build_model(X_train, loss='mse', optimizer='adam')
+    # grid_model_reg = KerasRegressor(build_fn=grid_model, verbose=1)
 
-    my_model = best_model(X_train, y_train, grid_model, cv=2)
+    my_model, grid_result = best_model(X_train, y_train, grid_model_reg, ticker, cv=3)
     # dataset_test = data.iloc[:, :-1].loc['2021-01-01':]
     # y_test_change = data_tr.loc['2021-01-01':]
     # y_test_change = np.array(y_test_change.iloc[30:,3])
@@ -27,11 +27,23 @@ def final_pred(ticker, change='absolute'):
     preds, score = prediction(my_model, y_test_close_change, X_test, scaler, loss='mse') # y_test_close_change
     d = {'Close_actual_change': y_test_close_change, 'Close_prediction_change': preds} # y_test_close_change
     data_pred = pd.DataFrame(data=d, index=data[-len(preds):].index)
+
     df_preds, classification_accuracy = classification(data_pred, data, change=change)
     df_preds_abs = upd_df(df_preds)
-    plot_results(ticker, df_preds_abs, change=change)
 
-    return df_preds, df_preds_abs, classification_accuracy
+    # summarize results
+    print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
+    means = grid_result.cv_results_['mean_test_score']
+    stds = grid_result.cv_results_['std_test_score']
+    params = grid_result.cv_results_['params']
+    for mean, stdev, param in zip(means, stds, params):
+        print("%f (%f) with: %r" % (mean, stdev, param))
+
+    plot_results(ticker, df_preds_abs, change=change)
+    plot_loss(my_model, ticker)
+    best_score = grid_result.best_score_
+
+    return df_preds, df_preds_abs, classification_accuracy, best_score
 
 # data = download_data('NFLX', '2018-01-01', '2022-01-01', '1d')
 # data_tr = data_transform(data, 'absolute')
@@ -57,16 +69,31 @@ def final_pred(ticker, change='absolute'):
 
 
 def makemydir(df, stock, folder_name ):
-    dir = os.path.join("C:\\", folder_name)
+    dir = os.path.join("C:/Users/AI_BootCamp_06/Desktop/LSTMM/", folder_name)
     if not os.path.exists(dir):
         os.makedirs(dir)
     os.chdir(dir)
-    df.to_csv(f'df_{stock}_change_TI.csv')
+    df.to_csv(f'df_{stock}_change.csv')
 
-for stock in ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'FB', 'NVDA']: #, 'JNJ', 'UNH', 'XOM', 'JPM', 'PG', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']:
-    df_preds, df_preds_abs, clf_acc = final_pred(stock, change='absolute')
-    makemydir(df_preds, stock, "Stock Price Prediction with TI (Close change only)")
-    makemydir(df_preds_abs, stock, "Stock Price Prediction with TI (with added changes) (Close change only)")
+acc_list = []
+scores = []
+
+#stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'FB', 'NVDA']
+#stocks = ['JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
+# stocks = ['CVX', 'MA', 'WMT', 'HD']
+stocks = ['XOM', 'JPM'] # no PG
+
+for stock in stocks:
+    df_preds, df_preds_abs, clf_acc, score = final_pred(stock, change='absolute')
+    makemydir(df_preds, stock, "Stock Price Prediction (absolute change) 13.07")
+    makemydir(df_preds_abs, stock, "Stock Price Prediction(with added changes) (absolute change) 13.07")
+    acc_list.append(clf_acc)
+    scores.append(score)
     # plt.close()
     print(f'{stock} done')
 
+dict_acc = {'Stock': stocks, 'Accuracy':acc_list, 'Score': scores}
+df_acc = pd.DataFrame(dict_acc)
+
+print(df_acc)
+df_acc.to_csv('accuracy_.csv')

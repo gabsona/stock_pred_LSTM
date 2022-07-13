@@ -17,8 +17,8 @@ def prediction(model, original, X_test, scaler, loss = 'mse'):
   prediction = prediction.reshape(prediction.shape[0],1)
   prediction_copies_array = np.repeat(prediction, X_test.shape[2], axis=-1) #change this one
 
-  # pred = scaler.inverse_transform(np.reshape(prediction_copies_array,(len(prediction), X_test.shape[2])))[:,3]
-  pred = np.reshape(prediction_copies_array, (len(prediction), X_test.shape[2]))[:, 3]
+  pred = scaler.inverse_transform(np.reshape(prediction_copies_array,(len(prediction), X_test.shape[2])))[:,3]
+  #pred = np.reshape(pred, (len(prediction), X_test.shape[2]))[:, 3]
   if loss == 'mse':
     testScore = mean_squared_error(original, pred)
   if loss == 'mape':
