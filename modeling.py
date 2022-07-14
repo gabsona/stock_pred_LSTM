@@ -10,9 +10,12 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, LSTM
-from sklearn.preprocessing import MinMaxScaler
+
 from scikeras.wrappers import KerasRegressor
 from sklearn.model_selection import GridSearchCV
+from sklearn.externals import joblib
+
+from tensorflow.keras.callbacks import LambdaCallback, ModelCheckpoint
 import os
 
 # optimizer = ['SGD', 'RMSprop', 'Adagrad', 'Adadelta', 'Adam', 'Adamax', 'Nadam']
@@ -21,13 +24,14 @@ import os
 # dropout_rate = [0.2, 0.3]
 
 
+
 parameters = {'batch_size': [64 ,128],
-              'epochs': [100]}
+              'epochs': [100],
+               'optimizer': ['RMSprop', 'Adagrad', 'Adadelta', 'Adam', 'Adamax'],
+               'optimizer__learning_rate': [0.001, 0.01, 0.1]}
 # add learning rate
 # epoch = 100
 #
-
-
 def build_model(X_train, loss = 'mse', optimizer = 'adam'):
 
     grid_model = Sequential()
@@ -46,14 +50,27 @@ def build_model(X_train, loss = 'mse', optimizer = 'adam'):
     # Dense layer that specifies an output of one unit
     grid_model.add(Dense(1))
     defined_metrics = [tf.keras.metrics.MeanSquaredError(name='MSE')]
-    grid_model.compile(loss = loss, optimizer = optimizer, metrics=defined_metrics)
+    grid_model.compile(loss = loss, metrics=defined_metrics)
     grid_model_reg = KerasRegressor(build_fn=grid_model, verbose=1)
+    grid_model_reg.model.save("keras_regressor")
 
     return grid_model, grid_model_reg
 
 def best_model(X_train, y_train, grid_model_reg, ticker, cv = 3):
   grid_search = GridSearchCV(estimator = grid_model_reg, param_grid = parameters, cv = cv)
-  grid_result = grid_search.fit(X_train, y_train)
+
+  # defining the checkpoint
+  filepath_ = f"weights_{ticker}.hdf5"
+  # filepath = '/checkpoint'
+  # checkpoint_path = "train_checkpoint/cp.ckpt"
+  # checkpoint_dir = os.path.dirname(checkpoint_path)
+  # checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
+  checkpoint = ModelCheckpoint(filepath = filepath_, monitor='loss', verbose=1, save_best_only=True, mode='min')
+
+  # fitting model using our gpu
+  with tf.device('/gpu:0'):
+      grid_result = grid_search.fit(X_train, y_train, verbose=2, callbacks=[checkpoint])
+  # grid_result = grid_search.fit(X_train, y_train)
   my_model = grid_result.best_estimator_
 
   # # summarize results
@@ -65,13 +82,8 @@ def best_model(X_train, y_train, grid_model_reg, ticker, cv = 3):
   #     print("%f (%f) with: %r" % (mean, stdev, param))
 
   print('Keys: ', my_model.history_.keys())
-  # plt.plot(grid_result.history_['loss'])
-  # plt.savefig(f'C:/Users/AI_BootCamp_06/Desktop/LSTMM/loss_plot/plot_loss_{ticker}.png')
+
   return my_model, grid_result
-
-
-# with tf.device('/gpu:0'):
-#     my_model.fit(X_train, y_train)
 
 
 

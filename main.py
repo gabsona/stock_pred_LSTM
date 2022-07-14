@@ -36,14 +36,23 @@ def final_pred(ticker, change='absolute'):
     means = grid_result.cv_results_['mean_test_score']
     stds = grid_result.cv_results_['std_test_score']
     params = grid_result.cv_results_['params']
+
+    mse_train = mean_squared_error(y_train, grid_result.predict(X_train)))
+    mse_test = mean_squared_error(y_test, grid_result.predict(X_test)))
     for mean, stdev, param in zip(means, stds, params):
         print("%f (%f) with: %r" % (mean, stdev, param))
+    print("Train MSE : {}".format(mean_squared_error(y_train, grid_result.predict(X_train))))
+    print("Test  MSE : {}".format(mean_squared_error(y_test, grid_result.predict(X_test))))
+
+    print("\nTrain R^2 : {}".format(grid_result.score(X_train, y_train)))
+    print("Test  R^2 : {}".format(grid_result.score(X_test, y_test)))
+
 
     plot_results(ticker, df_preds_abs, change=change)
     plot_loss(my_model, ticker)
     best_score = grid_result.best_score_
 
-    return df_preds, df_preds_abs, classification_accuracy, best_score
+    return df_preds, df_preds_abs, classification_accuracy, best_score, mse_train, mse_test
 
 # data = download_data('NFLX', '2018-01-01', '2022-01-01', '1d')
 # data_tr = data_transform(data, 'absolute')
@@ -77,22 +86,26 @@ def makemydir(df, stock, folder_name ):
 
 acc_list = []
 scores = []
+mse_train_ = []
+mse_test_ = []
 
-#stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'FB', 'NVDA']
+# stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'FB', 'NVDA', 'JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
 #stocks = ['JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
 # stocks = ['CVX', 'MA', 'WMT', 'HD']
 stocks = ['XOM', 'JPM'] # no PG
 
 for stock in stocks:
-    df_preds, df_preds_abs, clf_acc, score = final_pred(stock, change='absolute')
-    makemydir(df_preds, stock, "Stock Price Prediction (absolute change) 13.07")
-    makemydir(df_preds_abs, stock, "Stock Price Prediction(with added changes) (absolute change) 13.07")
+    df_preds, df_preds_abs, clf_acc, score, mse_train, mse_test = final_pred(stock, change='absolute')
+    makemydir(df_preds, stock, "Stock Price Prediction (absolute change) 14.07")
+    makemydir(df_preds_abs, stock, "Stock Price Prediction(with added changes) (absolute change) 14.07")
     acc_list.append(clf_acc)
     scores.append(score)
+    mse_train_.append(mse_train)
+    mse_test_.append(mse_test)
     # plt.close()
     print(f'{stock} done')
 
-dict_acc = {'Stock': stocks, 'Accuracy':acc_list, 'Score': scores}
+dict_acc = {'Stock': stocks, 'Accuracy':acc_list, 'Score': scores, 'MSE train': mse_train_, 'MSE test':mse_test_}
 df_acc = pd.DataFrame(dict_acc)
 
 print(df_acc)
