@@ -40,8 +40,8 @@ def build_model(X_train, loss = 'mse', optimizer = 'adam'):
     grid_model.add(LSTM(100, return_sequences=True, input_shape=(X_train.shape[1], X_train.shape[2]))) # (30,4)
     grid_model.add(Dropout(0.2)) # 20% of the units will be dropped
     # 2nd LSTM layer
-    grid_model.add(LSTM(50, return_sequences=True))
-    grid_model.add(Dropout(0.2))
+    # grid_model.add(LSTM(50, return_sequences=True))
+    # grid_model.add(Dropout(0.2))
     # 3rd LSTM layer
     # grid_model.add(LSTM(units=50, return_sequences=True))
     # grid_model.add(Dropout(0.5))
@@ -53,7 +53,6 @@ def build_model(X_train, loss = 'mse', optimizer = 'adam'):
     defined_metrics = [tf.keras.metrics.MeanSquaredError(name='MSE')]
     grid_model.compile(loss = loss, optimizer= optimizer, metrics=defined_metrics)
     grid_model_reg = KerasRegressor(build_fn=grid_model, verbose=1)
-
 
     return grid_model, grid_model_reg
 
@@ -67,7 +66,8 @@ def best_model(X_train, y_train, grid_model_reg, ticker, cv = 3):
   my_model = grid_result.best_estimator_
 
   # saving the model
-  joblib.dump(my_model, f'saved_models/model_{ticker}.pkl')
+  cwd = os.getcwd()
+  joblib.dump(my_model, cwd + f'\\saved_models\\model_{ticker}.pkl')
 
   print('Keys: ', my_model.history_.keys())
 
