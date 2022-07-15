@@ -109,30 +109,21 @@ for stock in stocks:
     dict_append = {'Stock': stock, 'Accuracy':clf_acc, 'Score': score, 'MSE train': mse_train, 'MSE test':mse_test, 'Best Parameters':best_params}
     # Open your CSV file in append mode
     # Create a file object for this file
-    with open('dict_15.07.csv', 'a') as f_object:
-        # Pass the file object and a list
-        # of column names to DictWriter()
-        # You will get a object of DictWriter
-        fieldnames = ['Stock', 'Accuracy', 'Score', 'MSE train', 'MSE test', 'Best Parameters']
-        dictwriter_object = DictWriter(f_object, fieldnames=dict_append)
+    with open('dict_15.07.csv', 'a', newline='') as f_object:
 
-        # Pass the dictionary as an argument to the Writerow()
+        fieldnames = ['Stock', 'Accuracy', 'Score', 'MSE train', 'MSE test', 'Best Parameters']
+        dictwriter_object = DictWriter(f_object, fieldnames = dict_append)
+
+        # Passing the dictionary as an argument to the Writerow()
         dictwriter_object.writerow(dict_append)
 
-        # Close the file object
+        # Closing the file object
         f_object.close()
     # acc_list.append(clf_acc)
     # scores.append(score)
     # mse_train_.append(mse_train)
     # mse_test_.append(mse_test)
     # best_params_.append(best_params)
-    # dict_acc['Stock'].append(stock)
-    # dict_acc['Accuracy'].append(clf_acc)
-    # dict_acc['Score'].append(score)
-    # dict_acc['Best Parameters'].append(best_params)
-    # dict_acc['MSE train'].append(mse_train)
-    # dict_acc['MSE test'].append(mse_test)
-
 
     # plt.close()
     # print(f'{stock} done')

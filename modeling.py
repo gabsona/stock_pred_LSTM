@@ -40,8 +40,8 @@ def build_model(X_train, loss = 'mse', optimizer = 'adam'):
     grid_model.add(LSTM(100, return_sequences=True, input_shape=(X_train.shape[1], X_train.shape[2]))) # (30,4)
     grid_model.add(Dropout(0.2)) # 20% of the units will be dropped
     # 2nd LSTM layer
-    # grid_model.add(LSTM(50, return_sequences=True))
-    # grid_model.add(Dropout(0.2))
+    grid_model.add(LSTM(50, return_sequences=True))
+    grid_model.add(Dropout(0.2))
     # 3rd LSTM layer
     # grid_model.add(LSTM(units=50, return_sequences=True))
     # grid_model.add(Dropout(0.5))

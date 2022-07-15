@@ -6,7 +6,7 @@ import tensorflow as tf
 
 import numpy as np
 import pandas as pd
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt3
 
 from sklearn.preprocessing import MinMaxScaler
 
