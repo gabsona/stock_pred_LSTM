@@ -13,10 +13,11 @@ from tensorflow.keras.layers import Dense, Dropout, LSTM
 
 from scikeras.wrappers import KerasRegressor
 from sklearn.model_selection import GridSearchCV
-from sklearn.externals import joblib
+# from sklearn.externals import joblib
 
 from tensorflow.keras.callbacks import LambdaCallback, ModelCheckpoint
 import os
+import joblib
 
 # optimizer = ['SGD', 'RMSprop', 'Adagrad', 'Adadelta', 'Adam', 'Adamax', 'Nadam']
 # learn_rate = [0.001, 0.01, 0.1, 0.2, 0.3]
@@ -52,7 +53,7 @@ def build_model(X_train, loss = 'mse', optimizer = 'adam'):
     defined_metrics = [tf.keras.metrics.MeanSquaredError(name='MSE')]
     grid_model.compile(loss = loss, metrics=defined_metrics)
     grid_model_reg = KerasRegressor(build_fn=grid_model, verbose=1)
-    grid_model_reg.model.save("keras_regressor")
+
 
     return grid_model, grid_model_reg
 
@@ -60,18 +61,21 @@ def best_model(X_train, y_train, grid_model_reg, ticker, cv = 3):
   grid_search = GridSearchCV(estimator = grid_model_reg, param_grid = parameters, cv = cv)
 
   # defining the checkpoint
-  filepath_ = f"weights_{ticker}.hdf5"
+  # filepath_ = f"weights_{ticker}.hdf5"
   # filepath = '/checkpoint'
   # checkpoint_path = "train_checkpoint/cp.ckpt"
   # checkpoint_dir = os.path.dirname(checkpoint_path)
   # checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
-  checkpoint = ModelCheckpoint(filepath = filepath_, monitor='loss', verbose=1, save_best_only=True, mode='min')
+  # checkpoint = ModelCheckpoint(filepath = filepath_, monitor='loss', verbose=1, save_best_only=True, mode='min')
 
   # fitting model using our gpu
-  with tf.device('/gpu:0'):
-      grid_result = grid_search.fit(X_train, y_train, verbose=2, callbacks=[checkpoint])
-  # grid_result = grid_search.fit(X_train, y_train)
+  # with tf.device('/gpu:0'):
+  #     grid_result = grid_search.fit(X_train, y_train, verbose=2, callbacks=[checkpoint])
+  grid_result = grid_search.fit(X_train, y_train)
   my_model = grid_result.best_estimator_
+
+  # saving the model
+  joblib.dump(my_model, f'model_{ticker}.pkl')
 
   # # summarize results
   # print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))

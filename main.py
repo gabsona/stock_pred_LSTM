@@ -5,6 +5,7 @@ from prediction import *
 from visualisation import *
 from helper_functions import *
 import os
+import joblib
 
 def final_pred(ticker, change='absolute'):
     data = download_data(ticker, '2018-01-01', '2022-01-01', '1d')
@@ -37,8 +38,8 @@ def final_pred(ticker, change='absolute'):
     stds = grid_result.cv_results_['std_test_score']
     params = grid_result.cv_results_['params']
 
-    mse_train = mean_squared_error(y_train, grid_result.predict(X_train)))
-    mse_test = mean_squared_error(y_test, grid_result.predict(X_test)))
+    mse_train = mean_squared_error(y_train, grid_result.predict(X_train))
+    mse_test = mean_squared_error(y_test, grid_result.predict(X_test))
     for mean, stdev, param in zip(means, stds, params):
         print("%f (%f) with: %r" % (mean, stdev, param))
     print("Train MSE : {}".format(mean_squared_error(y_train, grid_result.predict(X_train))))
@@ -89,10 +90,10 @@ scores = []
 mse_train_ = []
 mse_test_ = []
 
-# stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'FB', 'NVDA', 'JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
+stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'FB', 'NVDA', 'JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
 #stocks = ['JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
 # stocks = ['CVX', 'MA', 'WMT', 'HD']
-stocks = ['XOM', 'JPM'] # no PG
+# stocks = ['XOM', 'JPM'] # no PG
 
 for stock in stocks:
     df_preds, df_preds_abs, clf_acc, score, mse_train, mse_test = final_pred(stock, change='absolute')
