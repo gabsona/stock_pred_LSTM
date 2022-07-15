@@ -90,15 +90,15 @@ scores = []
 mse_train_ = []
 mse_test_ = []
 
-stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'FB', 'NVDA', 'JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
-#stocks = ['JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
+# stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'FB', 'NVDA', 'JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
+stocks = ['JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO']
 # stocks = ['CVX', 'MA', 'WMT', 'HD']
 # stocks = ['XOM', 'JPM'] # no PG
 
 for stock in stocks:
     df_preds, df_preds_abs, clf_acc, score, mse_train, mse_test = final_pred(stock, change='absolute')
-    makemydir(df_preds, stock, "Stock Price Prediction (absolute change) 14.07")
-    makemydir(df_preds_abs, stock, "Stock Price Prediction(with added changes) (absolute change) 14.07")
+    makemydir(df_preds, stock, "Stock Price Prediction (absolute change) 15.07")
+    makemydir(df_preds_abs, stock, "Stock Price Prediction(with added changes) (absolute change) 15.07")
     acc_list.append(clf_acc)
     scores.append(score)
     mse_train_.append(mse_train)
@@ -110,4 +110,4 @@ dict_acc = {'Stock': stocks, 'Accuracy':acc_list, 'Score': scores, 'MSE train': 
 df_acc = pd.DataFrame(dict_acc)
 
 print(df_acc)
-df_acc.to_csv('accuracy_.csv')
+df_acc.to_csv('accuracy_15.07.csv')

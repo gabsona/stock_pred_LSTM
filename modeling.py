@@ -27,9 +27,9 @@ import joblib
 
 
 parameters = {'batch_size': [64 ,128],
-              'epochs': [100],
-               'optimizer': ['RMSprop', 'Adagrad', 'Adadelta', 'Adam', 'Adamax'],
-               'optimizer__learning_rate': [0.001, 0.01, 0.1]}
+              'epochs': [100]}
+               # 'optimizer': ['RMSprop', 'Adagrad', 'Adadelta', 'Adam', 'Adamax'],
+               # 'optimizer__learning_rate': [0.001, 0.01, 0.1]}
 # add learning rate
 # epoch = 100
 #
@@ -51,7 +51,7 @@ def build_model(X_train, loss = 'mse', optimizer = 'adam'):
     # Dense layer that specifies an output of one unit
     grid_model.add(Dense(1))
     defined_metrics = [tf.keras.metrics.MeanSquaredError(name='MSE')]
-    grid_model.compile(loss = loss, metrics=defined_metrics)
+    grid_model.compile(loss = loss, optimizer= optimizer, metrics=defined_metrics)
     grid_model_reg = KerasRegressor(build_fn=grid_model, verbose=1)
 
 
@@ -60,14 +60,6 @@ def build_model(X_train, loss = 'mse', optimizer = 'adam'):
 def best_model(X_train, y_train, grid_model_reg, ticker, cv = 3):
   grid_search = GridSearchCV(estimator = grid_model_reg, param_grid = parameters, cv = cv)
 
-  # defining the checkpoint
-  # filepath_ = f"weights_{ticker}.hdf5"
-  # filepath = '/checkpoint'
-  # checkpoint_path = "train_checkpoint/cp.ckpt"
-  # checkpoint_dir = os.path.dirname(checkpoint_path)
-  # checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
-  # checkpoint = ModelCheckpoint(filepath = filepath_, monitor='loss', verbose=1, save_best_only=True, mode='min')
-
   # fitting model using our gpu
   # with tf.device('/gpu:0'):
   #     grid_result = grid_search.fit(X_train, y_train, verbose=2, callbacks=[checkpoint])
@@ -75,20 +67,15 @@ def best_model(X_train, y_train, grid_model_reg, ticker, cv = 3):
   my_model = grid_result.best_estimator_
 
   # saving the model
-  joblib.dump(my_model, f'model_{ticker}.pkl')
-
-  # # summarize results
-  # print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
-  # means = grid_result.cv_results_['mean_test_score']
-  # stds = grid_result.cv_results_['std_test_score']
-  # params = grid_result.cv_results_['params']
-  # for mean, stdev, param in zip(means, stds, params):
-  #     print("%f (%f) with: %r" % (mean, stdev, param))
+  joblib.dump(my_model, f'saved_models/model_{ticker}.pkl')
 
   print('Keys: ', my_model.history_.keys())
 
   return my_model, grid_result
 
 
-
-
+# defining the checkpoint
+# filepath_ = f"weights_{ticker}.hdf5"
+# checkpoint_path = "train_checkpoint/cp.ckpt"
+# checkpoint_dir = os.path.dirname(checkpoint_path)
+# checkpoint = ModelCheckpoint(filepath = filepath_, monitor='loss', verbose=1, save_best_only=True, mode='min')
