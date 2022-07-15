@@ -27,7 +27,8 @@ import joblib
 
 
 parameters = {'batch_size': [64 ,128],
-              'epochs': [100]}
+              'epochs': [100],
+              'optimizer__learning_rate': [0.001, 0.01, 0.1]}
                # 'optimizer': ['RMSprop', 'Adagrad', 'Adadelta', 'Adam', 'Adamax'],
                # 'optimizer__learning_rate': [0.001, 0.01, 0.1]}
 # add learning rate

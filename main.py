@@ -6,6 +6,8 @@ from visualisation import *
 from helper_functions import *
 import os
 from csv import DictWriter
+from datetime import datetime
+
 
 import joblib
 
@@ -82,7 +84,7 @@ def final_pred(ticker, change='absolute'):
 
 
 def makemydir(df, stock, folder_name):
-    dir = os.path.join("C:/Users/AI_BootCamp_06/Desktop/LSTMM/", folder_name)
+    dir = os.path.join("C:/Users/AI_BootCamp_06/Desktop/LSTMM/", folder_name + datetime.today().strftime('%d.%m'))
     if not os.path.exists(dir):
         os.makedirs(dir)
     # os.chdir(dir)
@@ -97,15 +99,15 @@ dict_acc = {'Stock': [], 'Accuracy': [], 'Score': [], 'MSE train': [], 'MSE test
 df_acc = pd.DataFrame(dict_acc)
 df_acc.to_csv('dict_15.07.csv', index = False)
 
-# stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'FB', 'NVDA', 'JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
+stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'FB', 'NVDA', 'JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
 # stocks = ['JNJ', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO']
 # stocks = ['CVX', 'MA', 'WMT', 'HD']
-stocks = ['XOM', 'JPM'] # no PG
+# stocks = ['XOM', 'JPM'] # no PG
 
 for stock in stocks:
     df_preds, df_preds_abs, clf_acc, score, best_params, mse_train, mse_test = final_pred(stock, change='absolute')
-    makemydir(df_preds, stock, "Stock Price Prediction (absolute change) 15.07")
-    makemydir(df_preds_abs, stock, "Stock Price Prediction(with added changes) (absolute change) 15.07")
+    makemydir(df_preds, stock, "Stock Price Prediction (absolute change) ")
+    makemydir(df_preds_abs, stock, "Stock Price Prediction(with added changes) (absolute change) ")
     dict_append = {'Stock': stock, 'Accuracy':clf_acc, 'Score': score, 'MSE train': mse_train, 'MSE test':mse_test, 'Best Parameters':best_params}
     # Open your CSV file in append mode
     # Create a file object for this file

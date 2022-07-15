@@ -1,6 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
+from datetime import datetime
+
 
 def upd_df(df):
     #df = pd.read_csv(f'C:\Stock Price Prediction\df_{ticker}.csv')
