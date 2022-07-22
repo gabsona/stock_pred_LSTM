@@ -99,7 +99,7 @@ mse_train_ = []
 mse_test_ = []
 dict_acc = {'Stock': [], 'Accuracy': [], 'Score': [], 'MSE train': [], 'MSE test': [], 'Best Parameters': []}
 df_acc = pd.DataFrame(dict_acc)
-df_acc.to_csv('dict_20.07.csv', index = False)
+df_acc.to_csv('dict_'+ datetime.today().strftime('%d.%m')+'.csv', index = False)
 
 # stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'FB', 'NVDA', 'JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
 # stocks = ['JNJ', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO']
@@ -113,7 +113,7 @@ for stock in stocks:
     dict_append = {'Stock': stock, 'Accuracy':clf_acc, 'Score': score, 'MSE train': mse_train, 'MSE test':mse_test, 'Best Parameters':best_params}
     # Open your CSV file in append mode
     # Create a file object for this file
-    with open('dict_15.07.csv', 'a', newline='') as f_object:
+    with open('dict_'+ datetime.today().strftime('%d.%m')+'.csv', 'a', newline='') as f_object:
 
         fieldnames = ['Stock', 'Accuracy', 'Score', 'MSE train', 'MSE test', 'Best Parameters']
         dictwriter_object = DictWriter(f_object, fieldnames = dict_append)
