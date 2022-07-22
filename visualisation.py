@@ -39,7 +39,10 @@ def plot_results(ticker, df, change):
 
 def plot_loss(my_model, ticker):
     plt.figure(figsize=(10, 6))
-    plt.plot(my_model.history_['loss'])
+    plt.plot(my_model.history_['mean_squared_error'], color='red')
+    plt.plot(my_model.history_['mean_absolute_error'], color='green')
+    plt.plot(my_model.history_['mean_absolute_percentage_error'], color='purple')
+    plt.plot(my_model.history_['cosine_proximity'], color='blue')
     cwd = os.getcwd()
     plt.savefig(cwd + f'\\loss_plot\\plot_loss_{ticker}.png')
 

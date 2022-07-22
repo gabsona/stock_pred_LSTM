@@ -5,19 +5,21 @@ import tensorflow as tf
 
 from sklearn.metrics import accuracy_score, mean_squared_error, mean_absolute_percentage_error
 
+from tensorflow.keras.wrappers.scikit_learn import KerasRegressor
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, LSTM
 
-from scikeras.wrappers import KerasRegressor
 from sklearn.model_selection import GridSearchCV
 # from sklearn.externals import joblib
 
 from tensorflow.keras.callbacks import LambdaCallback, ModelCheckpoint
 import os
 import joblib
+
+from tensorboard.plugins.hparams import api as hp
 
 # optimizer = ['SGD', 'RMSprop', 'Adagrad', 'Adadelta', 'Adam', 'Adamax', 'Nadam']
 # learn_rate = [0.001, 0.01, 0.1, 0.2, 0.3]
@@ -27,14 +29,16 @@ import joblib
 
 
 parameters = {'batch_size': [64 ,128],
-              'epochs': [100],
-              'optimizer__learning_rate': [0.001, 0.01, 0.1]}
-               # 'optimizer': ['RMSprop', 'Adagrad', 'Adadelta', 'Adam', 'Adamax'],
-               # 'optimizer__learning_rate': [0.001, 0.01, 0.1]}
+              'epochs': [100]}
+              #'optimizer__learning_rate': [0.001, 0.01, 0.1]} #change the range, big steps, check
+               # 'model__optimizer': ['RMSprop', 'Adagrad', 'Adadelta', 'Adam', 'Adamax'],
+
+
+# 'model__activation': ['softmax', 'softplus', 'softsign', 'relu', 'tanh', 'sigmoid', 'hard_sigmoid', 'linear']}
 # add learning rate
 # epoch = 100
 #
-def build_model(X_train, loss = 'mse', optimizer = 'adam'):
+def build_model(X_train, loss = 'mse', optimizer = 'adam'): #remove dropouts, layers. units as params
 
     grid_model = Sequential()
     # 1st LSTM layer
@@ -52,13 +56,17 @@ def build_model(X_train, loss = 'mse', optimizer = 'adam'):
     # Dense layer that specifies an output of one unit
     grid_model.add(Dense(1))
     defined_metrics = [tf.keras.metrics.MeanSquaredError(name='MSE')]
-    grid_model.compile(loss = loss, optimizer= optimizer, metrics=defined_metrics)
-    grid_model_reg = KerasRegressor(build_fn=grid_model, verbose=1)
+    grid_model.compile(loss = loss, optimizer= optimizer, metrics=['mse', 'mae', 'mape', 'cosine'])
+    # grid_model_reg = KerasRegressor(build_fn=grid_model, verbose=1)
 
-    return grid_model, grid_model_reg
+    return grid_model
 
-def best_model(X_train, y_train, grid_model_reg, ticker, cv = 3):
-  grid_search = GridSearchCV(estimator = grid_model_reg, param_grid = parameters, cv = cv)
+def reg_model(grid_model):
+    model = KerasRegressor(build_fn=grid_model, verbose=1)
+    return model
+
+def best_model(X_train, y_train, model, ticker, cv = 3):
+  grid_search = GridSearchCV(estimator = model, param_grid = parameters, cv = cv) #randomsearch with more params
 
   # fitting model using our gpu
   # with tf.device('/gpu:0'):
