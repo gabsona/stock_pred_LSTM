@@ -23,6 +23,7 @@ from tensorboard.plugins.hparams import api as hp
 
 # optimizer = ['SGD', 'RMSprop', 'Adagrad', 'Adadelta', 'Adam', 'Adamax', 'Nadam']
 # learn_rate = [0.001, 0.01, 0.1, 0.2, 0.3]
+# learning_rates = [0.4, 0.2, 1E-0, 1E-1, 1E-2, 1E-3, 1E-5, 1E-7]
 # momentum = [0.0, 0.2, 0.4, 0.6, 0.8, 0.9]
 # dropout_rate = [0.2, 0.3]
 # activation = ['softmax', 'softplus', 'softsign', 'relu', 'tanh', 'sigmoid', 'hard_sigmoid', 'linear']
@@ -33,20 +34,20 @@ from tensorboard.plugins.hparams import api as hp
 parameters = {'batch_size': [64 ,128],
               'epochs': [100],
               #'optimizer__learning_rate': [0.001, 0.01, 0.1, 0.2, 0.3]} #change the range, big steps, check
-              'model__neurons1': [30, 50, 70, 100],
-              'model__neurons2': [15, 20, 30, 50]}
+              'neurons': [30, 50, 70, 100]}
+              # 'model__neurons2': [15, 20, 30, 50]}
                # 'model__optimizer': ['RMSprop', 'Adagrad', 'Adadelta', 'Adam', 'Adamax'],
 
 
 # 'model__activation': ['softmax', 'softplus', 'softsign', 'relu', 'tanh', 'sigmoid', 'hard_sigmoid', 'linear']}
 # add learning rate
 # epoch = 100
-#
-def build_model(X_train, neurons1, neurons2, loss = 'mse', optimizer = 'adam'): #remove dropouts, layers. units as params
+
+def build_model(X_train, loss = 'mse', optimizer = 'adam'): #remove dropouts, layers. units as params
 
     grid_model = Sequential()
     # 1st LSTM layer
-    grid_model.add(LSTM(units=neurons1, return_sequences=True, input_shape=(X_train.shape[1], X_train.shape[2]))) # (30,4)
+    grid_model.add(LSTM(units=neurons, return_sequences=True, input_shape=(X_train.shape[1], X_train.shape[2]))) # (30,4)
     # grid_model.add(Dropout(0.2)) # 20% of the units will be dropped
     # 2nd LSTM layer
     # grid_model.add(LSTM(50, return_sequences=True))
@@ -55,7 +56,7 @@ def build_model(X_train, neurons1, neurons2, loss = 'mse', optimizer = 'adam'): 
     # grid_model.add(LSTM(units=50, return_sequences=True))
     # grid_model.add(Dropout(0.5))
     # 4th LSTM layer
-    grid_model.add(LSTM(units=neurons2))
+    grid_model.add(LSTM(units=neurons))
     # grid_model.add(Dropout(0.5))
     # Dense layer that specifies an output of one unit
     grid_model.add(Dense(1))
